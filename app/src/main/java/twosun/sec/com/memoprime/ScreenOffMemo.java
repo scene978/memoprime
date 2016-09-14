@@ -18,6 +18,8 @@ import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -42,6 +44,13 @@ public class ScreenOffMemo extends AppCompatActivity {
     private SpenPageDoc mSpenPageDoc;
     private SpenSurfaceView mSpenSurfaceView;
 
+    private ImageButton penBtn;
+    private ImageButton eraseBtn;
+    private ImageButton excuteBtn;
+    private ImageButton pinBtn;
+    private Button cancelBtn;
+    private Button saveBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +64,13 @@ public class ScreenOffMemo extends AppCompatActivity {
         // Hiding actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
+
+        penBtn = (ImageButton) findViewById(R.id.penButton);
+        eraseBtn = (ImageButton) findViewById(R.id.eraseButton);
+        excuteBtn = (ImageButton) findViewById(R.id.excuteButton);
+        pinBtn = (ImageButton) findViewById(R.id.pinButton);
+        cancelBtn = (Button) findViewById(R.id.cancelButton);
+        saveBtn = (Button) findViewById(R.id.saveButton);
 
         mContext = this;
 
@@ -75,8 +91,6 @@ public class ScreenOffMemo extends AppCompatActivity {
         }
         //Create Spen View
         RelativeLayout spenViewLayout = (RelativeLayout) findViewById(R.id.spenViewLayout);
-//        RelativeLayout spenViewLayout = new RelativeLayout(this);
-//        Log.d("This is mContext", "hihi");
         mSpenSurfaceView = new SpenSurfaceView(mContext);
         Toast.makeText(mContext, "Create new SpenView.", Toast.LENGTH_SHORT).show();
         if (mSpenSurfaceView == null) {
@@ -107,18 +121,33 @@ public class ScreenOffMemo extends AppCompatActivity {
         // Set PageDoc to View.
         mSpenSurfaceView.setPageDoc(mSpenPageDoc, true);
         initPenSettingInfo();
+        mSpenSurfaceView.setToolTypeAction(SpenSurfaceView.TOOL_FINGER, SpenSurfaceView.ACTION_NONE);
         if (isSpenFeatureEnabled == false) {
             mSpenSurfaceView.setToolTypeAction(SpenSurfaceView.TOOL_FINGER, SpenSurfaceView.ACTION_STROKE);
             Toast.makeText(mContext, "Device does not support Spen. \n You can draw stroke by finger.", Toast.LENGTH_SHORT).show();
         }
 
+        penBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSpenSurfaceView.setToolTypeAction(SpenSurfaceView.TOOL_SPEN, SpenSurfaceView.ACTION_STROKE);
+            }
+        });
+        eraseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSpenSurfaceView.setToolTypeAction(SpenSurfaceView.TOOL_SPEN, SpenSurfaceView.ACTION_ERASER);
+            }
+        });
     }
-    private void initPenSettingInfo(){
+
+    private void initPenSettingInfo() {
         SpenSettingPenInfo penInfo = new SpenSettingPenInfo();
         penInfo.color = Color.WHITE;
         penInfo.size = 5;
         mSpenSurfaceView.setPenSettingInfo(penInfo);
     }
+
     private boolean processUnsupportedException(SsdkUnsupportedException e) {
         e.printStackTrace();
         int errorType = e.getType();
@@ -166,7 +195,8 @@ public class ScreenOffMemo extends AppCompatActivity {
         }).show();
         dlg = null;
     }
-//    public static final Drawable getDrawable(Context context, int id) {
+
+    //    public static final Drawable getDrawable(Context context, int id) {
 //        final int version = Build.VERSION.SDK_INT;
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            return resources.getDrawable(id, context.getTheme());
